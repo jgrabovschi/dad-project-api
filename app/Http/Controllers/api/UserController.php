@@ -18,7 +18,12 @@ class UserController extends Controller
         return UserResource::collection(User::all());
     }
 
-    public function showMe(User $user)
+    public function showMe(Request $request)
+    {
+        return new UserResource($request->user());
+    }
+
+    public function show(User $user)
     {
         return new UserResource($user);
     }
