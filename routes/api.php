@@ -5,6 +5,7 @@ use App\Http\Controllers\api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserController;
+use App\Http\Controllers\api\GameController; 
 
 //************
 // Auth API
@@ -25,9 +26,6 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 // Boards API
 //************
 
-
-
-
 Route::get('/boards', [BoardController::class, 'index']);
 Route::post('/boards', [BoardController::class, 'store']);
 Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
@@ -43,3 +41,15 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{id}', [UserController::class, 'update']);
 Route::post('users/{id}/block', [UserController::class, 'block']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+//************
+// Users API
+//************
+
+Route::get('/games', [GameController::class, 'index']);
+Route::get('/games/{game}', [GameController::class, 'show']);
+Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
+#Route::post('/users', [UserController::class, 'store']);
+#Route::put('/users/{id}', [UserController::class, 'update']);
+#Route::post('users/{id}/block', [UserController::class, 'block']);
+Route::delete('/games/{game}', [GameController::class, 'destroy']);
