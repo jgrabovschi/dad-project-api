@@ -28,10 +28,7 @@ class UserController extends Controller
         $user->fill($request->validated());
         $user->blocked = false;
         $user->brain_coins_balance = 10;
-        $user->email_verified_at = null;
         $user->password = Hash::make($request->password); // Hash the password
-        $user->created_at = now();
-        $user->updated_at = null;
         $user->type = 'p';
 
 
