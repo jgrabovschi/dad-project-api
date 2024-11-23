@@ -21,13 +21,12 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        
         return [
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users',
-            'password' => 'sometimes|nullable|string|min:8',
+            'password' => 'sometimes|required|string|min:8',
             'nickname' => 'sometimes|required|string|max:255|unique:users',
-            'photo_filename' => 'sometimes|nullable|image|max:1024', // Validate as an image file with a max size of 1MB
+            'photo_filename' => 'sometimes|required|image|max:1024', // Validate as an image file with a max size of 1MB   
         ];
         
     }

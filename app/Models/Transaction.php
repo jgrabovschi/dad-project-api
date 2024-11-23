@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
+    public $timestamps = false; // Disable automatic timestamps
+
     protected $fillable = [
         'transaction_datetime',
         'user_id',
