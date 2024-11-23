@@ -12,6 +12,8 @@ class Board extends Model
         'board_rows',
     ];
 
+    public $timestamps = false;
+
     public function games() : HasMany
     {
         return $this->hasMany(Game::class);
