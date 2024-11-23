@@ -14,3 +14,4 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/boards', [BoardController::class, 'index']);
 Route::post('/boards', [BoardController::class, 'store']);
+Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
