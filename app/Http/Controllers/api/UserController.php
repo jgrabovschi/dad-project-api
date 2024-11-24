@@ -10,6 +10,8 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Transaction;
+use App\Http\Controllers\api\TransactionController;
 
 class UserController extends Controller
 {
@@ -48,9 +50,20 @@ class UserController extends Controller
             $user->photo_filename = basename($path);
         }
 
-        $user->save(); // Save the user to the database
+        if( $user->save()){
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->brain_coins = 10;
+            $transaction->type = 'B';
+            $transaction->transaction_datetime = now();
+            $transaction->save();
+            
+            return new UserResource($user);
+        }
 
-        return new UserResource($user);
+       
+
+        
     }
 
     public function update(UpdateUserRequest $request, User $user)
