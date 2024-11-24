@@ -21,7 +21,7 @@ class UserResource extends JsonResource
             'type' => $this->type,
             'nickname' => $this->nickname,
             'blocked' => $this->blocked,
-            'photo_filename' => $this->photo_filename ? '/storage/public/photos/' . $this->photo_filename : null,
+            'photo_filename' => $this->photo_filename ? '/storage/photos/' . $this->photo_filename : null,
             'brain_coins_balance' => $this->brain_coins_balance,
             'games_won' => $this->gamesWon->count()
         ];
