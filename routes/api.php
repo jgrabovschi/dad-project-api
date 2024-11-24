@@ -25,9 +25,6 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 // Boards API
 //************
 
-
-
-
 Route::get('/boards', [BoardController::class, 'index']);
 Route::post('/boards', [BoardController::class, 'store']);
 Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
@@ -63,4 +60,8 @@ Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
 #Route::post('/users', [UserController::class, 'store']);
 #Route::put('/users/{id}', [UserController::class, 'update']);
 #Route::post('users/{id}/block', [UserController::class, 'block']);
-Route::delete('/games/{game}', [GameController::class, 'destroy']);
+#Route::delete('/games/{game}', [GameController::class, 'destroy']);
+Route::get('/games/scoreboards/SingleplayerGames', [GameController::class, 'scoreboardBySingleplayerGames']);
+Route::get('/games/scoreboards/SingleplayerGames/users/{user}', [GameController::class, 'scoreboardBySingleplayerGamesByUsers']);
+Route::get('/games/scoreboards/MultiplayerGames', [GameController::class, 'scoreboardByMultiplayerGames']);
+Route::get('/games/scoreboards/MultiplayerGames/users/{user}', [GameController::class, 'scoreboardByMutliplayerGamesByUsers']);
