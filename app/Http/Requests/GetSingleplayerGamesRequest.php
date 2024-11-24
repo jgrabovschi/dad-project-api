@@ -23,7 +23,7 @@ class GetSingleplayerGamesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'board' => 'required|integer|exists:games,board_id',
+            'board_id' => 'required|integer|exists:games,board_id',
             'performance' => 'required|string|in:turns,total_time',
         ];
     }

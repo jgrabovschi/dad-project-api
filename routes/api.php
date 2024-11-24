@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GameController; 
 use App\Http\Controllers\api\TransactionController;
+use App\Http\Controllers\api\ScoreboardController;
 
 //************
 // Auth API
@@ -37,9 +38,9 @@ Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::post('/users', [UserController::class, 'store']);
-Route::put('/users/{id}', [UserController::class, 'update']);
-Route::post('users/{id}/block', [UserController::class, 'block']);
-Route::delete('/users/{id}', [UserController::class, 'destroy']);
+Route::put('/users/{user}', [UserController::class, 'update']);
+Route::post('users/{user}/block', [UserController::class, 'block']);
+Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 //************
 // Transactions API
@@ -57,11 +58,19 @@ Route::get('/transactions/users/{user}', [TransactionController::class, 'showUse
 Route::get('/games', [GameController::class, 'index']);
 Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
+Route::post('/games', [GameController::class, 'store']);
+Route::put('/games/{game}', [GameController::class, 'update']);
+Route::put('/games/{game}/join', [GameController::class, 'join']);
 #Route::post('/users', [UserController::class, 'store']);
 #Route::put('/users/{id}', [UserController::class, 'update']);
 #Route::post('users/{id}/block', [UserController::class, 'block']);
 #Route::delete('/games/{game}', [GameController::class, 'destroy']);
-Route::get('/games/scoreboards/SingleplayerGames', [GameController::class, 'scoreboardBySingleplayerGames']);
-Route::get('/games/scoreboards/SingleplayerGames/users/{user}', [GameController::class, 'scoreboardBySingleplayerGamesByUsers']);
-Route::get('/games/scoreboards/MultiplayerGames', [GameController::class, 'scoreboardByMultiplayerGames']);
-Route::get('/games/scoreboards/MultiplayerGames/users/{user}', [GameController::class, 'scoreboardByMutliplayerGamesByUsers']);
+
+
+//************
+// Scoreboard API
+//************
+Route::get('/scoreboards/SingleplayerGames', [ScoreboardController::class, 'scoreboardBySingleplayerGames']);
+Route::get('/scoreboards/SingleplayerGames/users/{user}', [ScoreboardController::class, 'scoreboardBySingleplayerGamesByUsers']);
+Route::get('/scoreboards/MultiplayerGames', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
+Route::get('/scoreboards/MultiplayerGames/users/{user}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);

@@ -15,6 +15,7 @@ class MultiplayerGamesPlayed extends Model
     ];
 
     protected $table = "multiplayer_games_played";
+    public $timestamps = false;
 
     public function user() : BelongsTo
     {
