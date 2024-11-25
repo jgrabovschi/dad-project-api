@@ -43,11 +43,15 @@ class UserController extends Controller
         if ($request->hasFile('photo_filename')) {
             
     
-            // Store the new file
-            $path = $request->file('photo_filename')->store('public/photos');
-    
-            // Save the filename in the database
-            $user->photo_filename = basename($path);
+                // Store the new photo temporarily
+            $path = $request->file('photo_filename')->store('photos', 'public');
+            $filename = $user->id . '_' . basename($path);
+
+            // Move the file to the new name
+            Storage::move('public/photos/' . basename($path), 'public/photos/' . $filename);
+
+            // Update the user's photo_filename attribute
+            $user->photo_filename = $filename;
         }
 
         if( $user->save()){
@@ -77,18 +81,26 @@ class UserController extends Controller
             $user->password = Hash::make($request->password); // Hash the password
         }
 
+        //dd( $request->file('photo_filename'));
+
         // Check if the photo is being updated
         if ($request->hasFile('photo_filename')) {
-            if (
-                $request->user()->photo_filename &&
-                Storage::fileExists('public/photos/' . $request->user()->photo_filename)
-            ) {
-                Storage::delete('public/photos/' . $request->user()->photo_filename); 
+            // Delete the existing photo if it exists
+            if ($user->photo_filename && Storage::exists('public/photos/' . $user->photo_filename)) {
+                Storage::delete('public/photos/' . $user->photo_filename);
             }
 
-            $path = $request->file('photo_filename')->store('public/photos');
-            $user->photo_filename = basename($path);
+            
+    
+                // Store the new photo temporarily
+            $path = $request->file('photo_filename')->store('photos', 'public');
+            $filename = $user->id . '_' . basename($path);
 
+            // Move the file to the new name
+            Storage::move('public/photos/' . basename($path), 'public/photos/' . $filename);
+
+            // Update the user's photo_filename attribute
+            $user->photo_filename = $filename;
         }
 
         $user->save(); // Save the user to the database
