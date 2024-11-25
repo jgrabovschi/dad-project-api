@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Transaction;
 use App\Http\Controllers\api\TransactionController;
 
+
 class UserController extends Controller
 {
     public function index()
@@ -39,21 +40,6 @@ class UserController extends Controller
         $user->type = 'p';
 
 
-        //Check if the photo is being uploaded
-        if ($request->hasFile('photo_filename')) {
-            
-    
-                // Store the new photo temporarily
-            $path = $request->file('photo_filename')->store('photos', 'public');
-            $filename = $user->id . '_' . basename($path);
-
-            // Move the file to the new name
-            Storage::move('public/photos/' . basename($path), 'public/photos/' . $filename);
-
-            // Update the user's photo_filename attribute
-            $user->photo_filename = $filename;
-        }
-
         if( $user->save()){
             $transaction = new Transaction();
             $transaction->user_id = $user->id;
@@ -61,6 +47,17 @@ class UserController extends Controller
             $transaction->type = 'B';
             $transaction->transaction_datetime = now();
             $transaction->save();
+
+            //Check if the photo is being uploaded
+            if ($request->hasFile('photo_filename')) {
+                
+                // Store the new photo 
+                $filename = $user->id . '_' . $request->file('photo_filename')->getClientOriginalName();
+                $path = $request->file('photo_filename')->storeAs('photos', $filename, 'public');
+                $user->photo_filename = $filename;
+
+                $user->save(); // Save the user to the database
+            }
             
             return new UserResource($user);
         }
@@ -73,6 +70,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         //$user = User::findOrFail($id);
+        
         $user->fill($request->validated());
 
 
@@ -85,21 +83,18 @@ class UserController extends Controller
 
         // Check if the photo is being updated
         if ($request->hasFile('photo_filename')) {
+            
             // Delete the existing photo if it exists
-            if ($user->photo_filename && Storage::exists('public/photos/' . $user->photo_filename)) {
+            if ($user->photo_filename) {
+                //Storage::delete('public/photos/' . $user->id . '_' . $user->photo_filename->getClientOriginalName());
                 Storage::delete('public/photos/' . $user->photo_filename);
             }
 
             
-    
-                // Store the new photo temporarily
-            $path = $request->file('photo_filename')->store('photos', 'public');
-            $filename = $user->id . '_' . basename($path);
-
-            // Move the file to the new name
-            Storage::move('public/photos/' . basename($path), 'public/photos/' . $filename);
-
-            // Update the user's photo_filename attribute
+        
+            // Store the new photo 
+            $filename = $user->id . '_' . $request->file('photo_filename')->getClientOriginalName();
+            $path = $request->file('photo_filename')->storeAs('photos', $filename, 'public');
             $user->photo_filename = $filename;
         }
 
