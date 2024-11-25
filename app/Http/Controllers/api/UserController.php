@@ -70,6 +70,8 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         //$user = User::findOrFail($id);
+
+        $user_old_photo = $user->photo_filename;
         
         $user->fill($request->validated());
 
@@ -85,13 +87,11 @@ class UserController extends Controller
         if ($request->hasFile('photo_filename')) {
             
             // Delete the existing photo if it exists
-            if ($user->photo_filename) {
-                //Storage::delete('public/photos/' . $user->id . '_' . $user->photo_filename->getClientOriginalName());
-                Storage::delete('public/photos/' . $user->photo_filename);
+            if (Storage::disk('public')->exists('photos/' . $user_old_photo)) {
+                Storage::disk('public')->delete('photos/' . $user_old_photo);
             }
 
             
-        
             // Store the new photo 
             $filename = $user->id . '_' . $request->file('photo_filename')->getClientOriginalName();
             $path = $request->file('photo_filename')->storeAs('photos', $filename, 'public');
