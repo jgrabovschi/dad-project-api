@@ -26,7 +26,7 @@ class GameController extends Controller
     {
         if($request->user()->type == 'A')
         {
-            return GameResource::collection(Game::where('status', 'E')->paginate(10));
+            return GameResource::collection(Game::paginate(10));
         }
         else
         {
