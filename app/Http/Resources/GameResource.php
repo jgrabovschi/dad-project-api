@@ -7,6 +7,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\BoardResource;
 
+use function PHPSTORM_META\type;
+
 class GameResource extends JsonResource
 {
     /**
@@ -20,13 +22,18 @@ class GameResource extends JsonResource
             'id' => $this->id,
             'create_user_id' => new UserResource($this->creator),
             #'create_user_id' => $this->creator->id,
-            'winner_user_id' => new UserResource($this->winner),
+            'winner_user_id' => $this->type == 'S' ? new UserResource($this->creator) : new UserResource($this->winner),
             'type' => $this->type,
             'status' => $this->status,
             'began_at' => $this->began_at,
             'ended_at' => $this->began_at,
             'total_time' => $this->total_time,
             'board_id' => new BoardResource($this->board),
+            'participants' => $this->type == 'S' ? 
+                    new UserResource($this->creator) :
+                    $this->multiplayerGamesPlayed->map(function($multiplayerGame){
+                            return new UserResource($multiplayerGame->user);
+                    }),
 
         ];
     }

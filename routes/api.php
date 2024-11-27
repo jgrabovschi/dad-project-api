@@ -18,6 +18,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
+    
+    //games
+    Route::get('/games', [GameController::class, 'index']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -55,7 +58,7 @@ Route::get('/transactions/users/{user}', [TransactionController::class, 'showUse
 // Games API
 //************
 
-Route::get('/games', [GameController::class, 'index']);
+
 Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
 Route::post('/games', [GameController::class, 'store']);

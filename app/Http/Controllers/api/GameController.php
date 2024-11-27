@@ -22,9 +22,17 @@ use Carbon\Carbon;
 
 class GameController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return GameResource::collection(Game::paginate(10));
+        if($request->user()->type == 'A')
+        {
+            return GameResource::collection(Game::where('status', 'E')->paginate(10));
+        }
+        else
+        {
+            $ids = MultiplayerGamesPlayed::where('user_id', $request->user()->id)->pluck('game_id')->toArray();
+            return GameResource::collection(Game::whereIntegerInRaw('id', $ids)->paginate(10));
+        }
     }
 
     public function gameByUser(User $user)
