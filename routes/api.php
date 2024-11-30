@@ -18,6 +18,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
+    Route::post('auth/validatepassword', [AuthController::class, 'validatePassword']);
     
     //games
     Route::get('/games', [GameController::class, 'index']);
@@ -44,6 +45,7 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
 Route::post('users/{user}/block', [UserController::class, 'block']);
 Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
 
 //************
 // Transactions API

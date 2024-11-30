@@ -12,6 +12,8 @@ use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Transaction;
 use App\Http\Controllers\api\TransactionController;
+use App\Http\Requests\ValidatePasswordRequest;
+
 
 
 class UserController extends Controller
@@ -232,4 +234,8 @@ class UserController extends Controller
             'message' => 'ID: '. $user->id .', Name: '. $user->name . ' deleted!'
         ]);
     }
+
+    
+        
+    
 }
