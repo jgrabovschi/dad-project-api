@@ -22,6 +22,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     //games
     Route::get('/games', [GameController::class, 'index']);
+    Route::get('/games/multiplayer', [GameController::class, 'multiplayerGames']);
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -59,7 +61,6 @@ Route::get('/transactions/users/{user}', [TransactionController::class, 'showUse
 //************
 // Games API
 //************
-
 
 Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
