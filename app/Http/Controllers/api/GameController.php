@@ -72,7 +72,7 @@ class GameController extends Controller
                 $game->status = 'PL';
                 $game->began_at = now();
                 $game->ended_at = null;
-                $game->save()
+                $game->save();
             }else{
                 $user = User::findOrFail($validated['created_user_id']);
                 if($user->brain_coins_balance < 1){
