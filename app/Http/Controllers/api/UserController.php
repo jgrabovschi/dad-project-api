@@ -228,7 +228,12 @@ class UserController extends Controller
 
     public function destroy(User $user){
         //$user = User::find($id);
+        
         $user->delete();
+        $user->brain_coins_balance = 0;
+        $user->save();
+
+        
 
         return response()->json([
             'message' => 'ID: '. $user->id .', Name: '. $user->name . ' deleted!'
