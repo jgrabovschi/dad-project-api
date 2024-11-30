@@ -8,6 +8,8 @@ use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\ValidatePasswordRequest;
 
 class AuthController extends Controller
 {
@@ -49,5 +51,13 @@ class AuthController extends Controller
         $this->revokeCurrentToken($request->user());
         $token = $request->user()->createToken('authToken', ['*'], now()->addHours(2))->plainTextToken;
         return response()->json(['token' => $token]);
+    }
+
+    public function validatePassword(Request $request)
+    {
+        if (!Hash::check($request->password, $request->user()->password)) {
+            return response()->json(['message' => 'Current Password is invalid!'], 400);
+        }
+        return response()->json(['message' => 'Password is valid!'], 200);
     }
 }

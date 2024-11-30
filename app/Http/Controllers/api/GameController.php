@@ -22,16 +22,30 @@ use Carbon\Carbon;
 
 class GameController extends Controller
 {
+    //returns singleplayer games
     public function index(Request $request)
     {
         if($request->user()->type == 'A')
         {
-            return GameResource::collection(Game::paginate(10));
+            return GameResource::collection(Game::where('type', 'S')->paginate(10));
+        }
+        else
+        {
+            return GameResource::collection(Game::where('type', 'S')->where('created_user_id', $request->user()->id)->paginate(10));
+        }
+    }
+
+    //returns multiplayer games
+    public function multiplayerGames(Request $request)
+    {
+        if($request->user()->type == 'A')
+        {
+            return GameResource::collection(Game::where('type', 'M')->paginate(10));
         }
         else
         {
             $ids = MultiplayerGamesPlayed::where('user_id', $request->user()->id)->pluck('game_id')->toArray();
-            return GameResource::collection(Game::whereIntegerInRaw('id', $ids)->paginate(10));
+            return GameResource::collection(Game::where('type', 'M')->whereIntegerInRaw('id', $ids)->paginate(10));
         }
     }
 
