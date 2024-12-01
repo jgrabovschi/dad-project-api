@@ -20,7 +20,7 @@ class ScoreboardController extends Controller
 {
     public function scoreboardBySingleplayerGames(string $filter)
     {
-        if ($filter != 'turns' && $filter != 'total_time') 
+        if ($filter != 'turns' && $filter != 'time') 
         {
             return response()->json(['error' => 'Invalid filter'], 400);
         }
