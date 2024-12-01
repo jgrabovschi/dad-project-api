@@ -101,9 +101,13 @@ class UserController extends Controller
         $user->email = $validatedData['email'];
         $user->nickname = $validatedData['nickname'];
         $user->blocked = false;
-        $user->brain_coins_balance = 10;
+        if($validatedData['type'] == 'A'){
+            $user->brain_coins_balance = 0;
+        }else{
+            $user->brain_coins_balance = 10;
+        }
         $user->password = Hash::make($request->password); // Hash the password
-        $user->type = 'p';
+        $user->type = $validatedData['type'];
 
         if ($user->save()) {
             $transaction = new Transaction();
