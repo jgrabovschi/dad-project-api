@@ -16,11 +16,28 @@ use App\Http\Requests\ValidatePasswordRequest;
 
 
 
+
+
 class UserController extends Controller
 {
-    public function index()
+    /*public function index()
     {
-        return UserResource::collection(User::all());
+        //return UserResource::collection(User::all())->paginate(10);
+        return UserResource::collection(User::paginate(10));
+    }*/
+
+    public function index(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', $search . '%');
+        }
+
+        $users = $query->paginate(10);
+
+        return UserResource::collection($users);
     }
 
     public function showMe(Request $request)
