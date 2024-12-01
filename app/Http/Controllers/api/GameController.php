@@ -204,7 +204,7 @@ class GameController extends Controller
             $multiplayerGame->save();
         }else{
             //fazer singleplayer coisa de update
-            $game->status = 'E';
+            $game->status = $validated['status'];
             $game->ended_at = now();
             
             $start = Carbon::parse($game->created_at);
