@@ -22,16 +22,30 @@ use Carbon\Carbon;
 
 class GameController extends Controller
 {
+    //returns singleplayer games
     public function index(Request $request)
     {
         if($request->user()->type == 'A')
         {
-            return GameResource::collection(Game::paginate(10));
+            return GameResource::collection(Game::where('type', 'S')->paginate(10));
+        }
+        else
+        {
+            return GameResource::collection(Game::where('type', 'S')->where('created_user_id', $request->user()->id)->paginate(10));
+        }
+    }
+
+    //returns multiplayer games
+    public function multiplayerGames(Request $request)
+    {
+        if($request->user()->type == 'A')
+        {
+            return GameResource::collection(Game::where('type', 'M')->paginate(10));
         }
         else
         {
             $ids = MultiplayerGamesPlayed::where('user_id', $request->user()->id)->pluck('game_id')->toArray();
-            return GameResource::collection(Game::whereIntegerInRaw('id', $ids)->paginate(10));
+            return GameResource::collection(Game::where('type', 'M')->whereIntegerInRaw('id', $ids)->paginate(10));
         }
     }
 
@@ -58,6 +72,7 @@ class GameController extends Controller
                 $game->status = 'PL';
                 $game->began_at = now();
                 $game->ended_at = null;
+                $game->save();
             }else{
                 $user = User::findOrFail($validated['created_user_id']);
                 if($user->brain_coins_balance < 1){
@@ -189,7 +204,7 @@ class GameController extends Controller
             $multiplayerGame->save();
         }else{
             //fazer singleplayer coisa de update
-            $game->status = 'E';
+            $game->status = $validated['status'];
             $game->ended_at = now();
             
             $start = Carbon::parse($game->created_at);

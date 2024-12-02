@@ -19,6 +19,7 @@ class Game extends Model
         'began_at',
         'ended_at',
         'board_id',
+        'total_turns_winner',
     ];
 
     public function board() : BelongsTo

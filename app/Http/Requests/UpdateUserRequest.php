@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
             'email' => 'sometimes|required|string|email|max:255|unique:users',
             'password' => 'sometimes|required|string|min:8',
             'nickname' => 'sometimes|required|string|max:255|unique:users',
-            'photo_filename' => 'sometimes|required|image|max:1024', // Validate as an image file with a max size of 1MB   
+            'photo_filename' => 'sometimes|required|string', // Validate as an image file with a max size of 1MB   
         ];
         
     }

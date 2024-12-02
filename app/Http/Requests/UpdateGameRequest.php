@@ -24,9 +24,9 @@ class UpdateGameRequest extends FormRequest
         return [
             'winner_user_id' => 'sometimes|integer|exists:users,id',
             'user_id'=> 'sometimes|integer|exists:users,id',
-            'pairs_discovered' => 'sometimes|integer'
+            'pairs_discovered' => 'sometimes|integer',
             //o status nao sei se vai ser preciso por causa do I
-            //'status' => 'required|string|in:E,I',
+            'status' => 'required|string|in:E,I',
         ];
     }
 }

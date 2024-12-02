@@ -28,7 +28,9 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'nickname' => 'required|string|max:255|unique:users',
-            'photo_filename' => 'nullable|image|max:1024', // Validate as a required image file with a max size of 1MB
+            'type' => 'required|string|max:1',
+            //'photo_filename' => 'nullable|image|max:1024', // Validate as a required image file with a max size of 1MB
+            'photo_filename' => 'nullable|string',
         ];
     }
 }

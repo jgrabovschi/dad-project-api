@@ -14,21 +14,47 @@ use App\Http\Requests\GetSingleplayerGamesRequest;
 use App\Http\Requests\GetMultiplayerGamesRequest;
 use Illuminate\Support\Facades\DB;
 
+use function PHPSTORM_META\map;
+
 class ScoreboardController extends Controller
 {
-    public function scoreboardBySingleplayerGames(GetSingleplayerGamesRequest $request)
+    public function scoreboardBySingleplayerGames(string $filter)
     {
-        $queryParameters = $request->validated();
-        $games = Game::query();
-        $games->where('board_id', $queryParameters['board_id'])->where('status', 'E');
-        if($queryParameters['performance'] == 'turns'){
-            $games->orderBy('total_time', 'asc');
-        }else
+        if ($filter != 'turns' && $filter != 'time') 
         {
-            $games->orderBy($queryParameters['performance'], 'asc');
+            return response()->json(['error' => 'Invalid filter'], 400);
         }
+
+        $games = Game::query();
+        $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
+              ->join('users', 'games.created_user_id', '=', 'users.id')
+              ->where('users.deleted_at', null)
+              ->where('games.type', 'S')
+              ->where('games.status', 'E')
+              ->groupBy('board_id');
         
-        return GameResource::collection($games->limit(10)->get());
+        if($filter == 'turns')
+        {
+            $games->orderBy('total_turns_winner', 'asc');
+        }
+        else
+        {
+            $games->orderBy('total_time', 'asc');
+        }
+
+        $bestScores = $games->with(['board', 'creator'])->get();
+
+        $result = $bestScores->map(function($game, $filter) {
+            return [
+                'board' => $game->board->board_rows . 'x' . $game->board->board_cols,
+                'performance' => $filter == 'turns' ? $game->total_turns_winner : $game->total_time,
+                'user' => $game->nickname,
+            ];
+        });
+
+        return $result;
+       
+
     }
 
     public function scoreboardBySingleplayerGamesByUsers(GetSingleplayerGamesRequest $request, User $user)

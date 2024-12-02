@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\BoardResource;
+use App\Models\MultiplayerGamesPlayed;
 
+use function Laravel\Prompts\multisearch;
 use function PHPSTORM_META\type;
 
 class GameResource extends JsonResource
@@ -20,21 +22,27 @@ class GameResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'create_user_id' => new UserResource($this->creator),
+            'created' => $this?->creator?->nickname ?? 'User Deleted',
             #'create_user_id' => $this->creator->id,
-            'winner_user_id' => $this->type == 'S' ? new UserResource($this->creator) : new UserResource($this->winner),
+            'winner' => $this->type == 'S' ? null : $this?->winner?->nickname ?? 'User Deleted',
             'type' => $this->type,
             'status' => $this->status,
             'began_at' => $this->began_at,
             'ended_at' => $this->began_at,
             'total_time' => $this->total_time,
             'board_id' => new BoardResource($this->board),
+            'total_turns_winner' => $this->total_turns_winner,
             'participants' => $this->type == 'S' ? 
-                    new UserResource($this->creator) :
-                    $this->multiplayerGamesPlayed->map(function($multiplayerGame){
-                            return new UserResource($multiplayerGame->user);
-                    }),
-
+                null : 
+                $this->multiplayerGamesPlayed->map(function($multiplayer) {
+                    if ($multiplayer->user) {
+                        return [
+                            'user_nickname' => $multiplayer->user->nickname,
+                            'pairs_discovered' => $multiplayer->pairs_discovered,
+                        ];
+                    }
+                    return null;
+                })->filter(), // Filter out null values
         ];
     }
 }
