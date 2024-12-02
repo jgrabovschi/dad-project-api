@@ -22,15 +22,11 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //the transaction required fields: user_id, game_id, type, brain_coins
-            //the transaction optional fields: euros, payment_type, payment_reference
-
             // Required fields
             'user_id' => 'required|integer|exists:users,id',
             'type' => 'required|string|in:B,P,I',
             'brain_coins' => 'required|integer',
             
-
             // Conditionally required fields
             'game_id' => 'required_if:type,I|integer|exists:games,id',
             'euros' => 'required_if:type,P|nullable|numeric|min:0',
