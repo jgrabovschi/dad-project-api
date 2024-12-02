@@ -65,11 +65,10 @@ class ScoreboardController extends Controller
         }
 
         $games = Game::query();
-        $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MAX(SUM(winner_user_id)) as wins, MIN(SUM(winner_used_id)) as total_time')
-              ->join('users', 'games.created_user_id', '=', 'users.id')
-              ->whereNull('users.deleted_at')
+        $games->selectRaw('board_id, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
               ->where('games.type', 'S')
               ->where('games.status', 'E')
+              ->where('games.created_user_id', $request->user()->id)
               ->groupBy('board_id');
         
         if($filter == 'turns')
