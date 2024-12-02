@@ -64,13 +64,12 @@ class ScoreboardController extends Controller
             return response()->json(['error' => 'Invalid filter'], 400);
         }
 
-        // a little different from the global scoreboard,
-        // we are filtering by the user that requested the scoreboard
         $games = Game::query();
-        $games->selectRaw('board_id, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
+        $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MAX(SUM(winner_user_id)) as wins, MIN(SUM(winner_used_id)) as total_time')
+              ->join('users', 'games.created_user_id', '=', 'users.id')
+              ->whereNull('users.deleted_at')
               ->where('games.type', 'S')
               ->where('games.status', 'E')
-              ->where('games.created_user_id', $request->user()->id)
               ->groupBy('board_id');
         
         if($filter == 'turns')
@@ -97,40 +96,38 @@ class ScoreboardController extends Controller
        
     }
 
-    public function scoreboardByMultiplayerGames(GetMultiplayerGamesRequest $request)
+    public function scoreboardByMultiplayerGames(string $filter)
     {
+        if ($filter != 'wins' && $filter != 'losses') 
+        {
+            return response()->json(['error' => 'Invalid filter'], 400);
+        }
 
-        $queryParameters = $request->validated();
-        $topPlayers = DB::table('games')
-            ->select('winner_user_id', DB::raw('COUNT(*) as wins'))
-            ->where('board_id',$queryParameters['board_id'])
-            ->whereNotNull('winner_user_id') // Exclude games without a winner
-            ->groupBy('winner_user_id') // Group by the winner ID
-            ->orderBy('wins', 'desc') // Order by the number of wins, descending
-            ->take(5) // Limit to the top 5 players
+        $games = Game::query();
+        $bestScores = $games->selectRaw('board_id, ANY_VALUE(users.nickname) as winner, COUNT(*) as wins')
+            ->join('multiplayer_games_played', 'games.id', '=', 'multiplayer_games_played.game_id')
+            ->join('users', 'multiplayer_games_played.user_id', '=', 'users.id')
+            ->whereNull('users.deleted_at')
+            ->where('games.type', 'M')
+            ->where('games.status', 'E')
+            ->where('player_won', $filter == 'wins' ? 1 : 0) //if it's wins, player_won = 1, if it's losses, player_won = 0
+            ->groupBy('board_id', 'multiplayer_games_played.user_id')
+            ->with('board')
+            ->orderBy('wins', 'desc')
             ->get();
-        
 
-        // Extract winner_user_ids
-        $winnerUserIds = $topPlayers->pluck('winner_user_id')->toArray();
 
-        // Query Users (fetching them in one query to avoid multiple calls)
-        $users = User::whereIn('id', $winnerUserIds)->get()->keyBy('id');
+        $result = $bestScores->groupBy('board_id')->map(function($games) {
+            $topPlayer = $games->first();
+            return [
+                'board' => $topPlayer->board->board_rows . 'x' . $topPlayer->board->board_cols,
+                'performance' => $topPlayer->wins, // it can also mean losses
+                'user' => $topPlayer->winner, 
+            ];
+        })->values();
 
-        // Map the users onto the top players
-        $topPlayers = $topPlayers->map(function ($player) use ($users) {
-            // Check if the user exists in the collection and add the nickname field
-            if (isset($users[$player->winner_user_id])) {
-                $player->nickname = $users[$player->winner_user_id]->nickname;
-            } else {
-                $player->nickname = null; // Default value if user not found
-            }
-            
-            return $player;
-        });
         
-        return $topPlayers;
-        
+        return $result;
     }
 
     public function scoreboardByMutliplayerGamesByUsers(GetMultiplayerGamesRequest $request, User $user)

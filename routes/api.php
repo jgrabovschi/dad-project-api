@@ -79,5 +79,5 @@ Route::put('/games/{game}/join', [GameController::class, 'join']);
 // Scoreboard API
 //************
 Route::get('/scoreboards/singleplayer/global/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGames']);
-Route::get('/scoreboards/Multiplayer', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
+Route::get('/scoreboards/multiplayer/global/{filter}', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
 Route::get('/scoreboards/Multiplayer/users/{user}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);
