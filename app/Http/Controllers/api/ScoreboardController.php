@@ -28,7 +28,7 @@ class ScoreboardController extends Controller
         $games = Game::query();
         $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
               ->join('users', 'games.created_user_id', '=', 'users.id')
-              ->where('users.deleted_at', null)
+              ->whereNull('users.deleted_at')
               ->where('games.type', 'S')
               ->where('games.status', 'E')
               ->groupBy('board_id');
@@ -57,19 +57,44 @@ class ScoreboardController extends Controller
 
     }
 
-    public function scoreboardBySingleplayerGamesByUsers(GetSingleplayerGamesRequest $request, User $user)
+    public function scoreboardBySingleplayerGamesByUsers(Request $request, string $filter)
     {
-        $queryParameters = $request->validated();
-        $games = Game::query();
-        $games->where('board_id', $queryParameters['board_id'])->where('created_user_id', $user->id)->where('status', 'E');
-        if($queryParameters['performance'] == 'turns'){
-            $games->orderBy('total_time', 'asc');
-        }else
+        if ($filter != 'turns' && $filter != 'time') 
         {
-            $games->orderBy($queryParameters['performance'], 'asc');
+            return response()->json(['error' => 'Invalid filter'], 400);
         }
+
+        // a little different from the global scoreboard,
+        // we are filtering by the user that requested the scoreboard
+        $games = Game::query();
+        $games->selectRaw('board_id, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
+              ->where('games.type', 'S')
+              ->where('games.status', 'E')
+              ->where('games.created_user_id', $request->user()->id)
+              ->groupBy('board_id');
         
-        return GameResource::collection($games->limit(10)->get());
+        if($filter == 'turns')
+        {
+            $games->orderBy('total_turns_winner', 'asc');
+        }
+        else
+        {
+            $games->orderBy('total_time', 'asc');
+        }
+
+        $bestScores = $games->with('board')->get();
+
+        //same as the global, but without the user because we are 
+        //returning info about the user that requested the scoreboard
+        $result = $bestScores->map(function($game, $filter) {
+            return [
+                'board' => $game->board->board_rows . 'x' . $game->board->board_cols,
+                'performance' => $filter == 'turns' ? $game->total_turns_winner : $game->total_time,
+            ];
+        });
+
+        return $result;
+       
     }
 
     public function scoreboardByMultiplayerGames(GetMultiplayerGamesRequest $request)
