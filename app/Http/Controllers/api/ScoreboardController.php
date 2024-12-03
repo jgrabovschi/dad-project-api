@@ -103,25 +103,31 @@ class ScoreboardController extends Controller
         }
 
         $games = Game::query();
-        $bestScores = $games->selectRaw('board_id, ANY_VALUE(users.nickname) as winner, COUNT(*) as wins')
+        $bestScores = $games->selectRaw('board_id, ANY_VALUE(users.nickname) as winner, COUNT(*) as wins, MAX(games.ended_at) as last_game')
             ->join('multiplayer_games_played', 'games.id', '=', 'multiplayer_games_played.game_id')
             ->join('users', 'multiplayer_games_played.user_id', '=', 'users.id')
-            ->whereNull('users.deleted_at')
+            ->whereNull('users.deleted_at') // do not consider deleted users
             ->where('games.type', 'M')
             ->where('games.status', 'E')
             ->where('player_won', $filter == 'wins' ? 1 : 0) //if it's wins, player_won = 1, if it's losses, player_won = 0
             ->groupBy('board_id', 'multiplayer_games_played.user_id')
             ->with('board')
             ->orderBy('wins', 'desc')
+            ->orderBy('last_game', 'asc') //if two players have the same number of wins, the one that won/lost first will be first
             ->get();
 
 
         $result = $bestScores->groupBy('board_id')->map(function($games) {
-            $topPlayer = $games->first();
+            $topPlayers = $games->take(5);
+
             return [
-                'board' => $topPlayer->board->board_rows . 'x' . $topPlayer->board->board_cols,
-                'performance' => $topPlayer->wins, // it can also mean losses
-                'user' => $topPlayer->winner, 
+                'board' => $topPlayers[0]->board->board_rows . 'x' . $topPlayers[0]->board->board_cols,
+                'players' => $topPlayers->map(function($game) {
+                    return [
+                        'user' => $game->winner,
+                        'games' => $game->wins, //it can be losses too
+                    ];
+                }),
             ];
         })->values();
 
