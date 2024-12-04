@@ -56,7 +56,10 @@ Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 Route::get('/transactions', [TransactionController::class, 'index']);
 Route::post('/transactions', [TransactionController::class, 'store']);
-Route::get('/transactions/users/{user}', [TransactionController::class, 'showUserTransactions']);
+Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
+Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
+Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+
 
 //************
 // Games API
