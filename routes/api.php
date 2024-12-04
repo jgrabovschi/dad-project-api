@@ -23,7 +23,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //games
     Route::get('/games', [GameController::class, 'index']);
     Route::get('/games/multiplayer', [GameController::class, 'multiplayerGames']);
-
+    
+    //scoreboards
+    Route::get('/scoreboards/singleplayer/personal/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGamesByUsers']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -79,7 +81,6 @@ Route::put('/games/{game}/join', [GameController::class, 'join']);
 //************
 // Scoreboard API
 //************
-Route::get('/scoreboards/singleplayer/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGames']);
-Route::get('/scoreboards/Singleplayer/users/{user}', [ScoreboardController::class, 'scoreboardBySingleplayerGamesByUsers']);
-Route::get('/scoreboards/Multiplayer', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
+Route::get('/scoreboards/singleplayer/global/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGames']);
+Route::get('/scoreboards/multiplayer/global/{filter}', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
 Route::get('/scoreboards/Multiplayer/users/{user}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);
