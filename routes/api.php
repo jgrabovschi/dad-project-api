@@ -8,6 +8,7 @@ use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GameController; 
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\ScoreboardController;
+use App\Http\Controllers\api\StatsController;
 
 //************
 // Auth API
@@ -26,6 +27,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     //scoreboards
     Route::get('/scoreboards/singleplayer/personal/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGamesByUsers']);
+    Route::get('/scoreboards/multiplayer/personal/{filter}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -83,4 +85,9 @@ Route::put('/games/{game}/join', [GameController::class, 'join']);
 //************
 Route::get('/scoreboards/singleplayer/global/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGames']);
 Route::get('/scoreboards/multiplayer/global/{filter}', [ScoreboardController::class, 'scoreboardByMultiplayerGames']);
-Route::get('/scoreboards/Multiplayer/users/{user}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);
+
+//************
+// Stats API
+//************
+
+Route::get('/stats', [StatsController::class, 'getGeneralStats']);

@@ -135,38 +135,34 @@ class ScoreboardController extends Controller
         return $result;
     }
 
-    public function scoreboardByMutliplayerGamesByUsers(GetMultiplayerGamesRequest $request, User $user)
+    public function scoreboardByMutliplayerGamesByUsers(Request $request, string $filter)
     {
-        $queryParameters = $request->validated();
-        $topPlayers = DB::table('games')
-            ->select('winner_user_id', DB::raw('COUNT(*) as wins'))
-            ->where('winner_user_id', $user->id)
-            ->where('board_id',$queryParameters['board_id'])
-            ->whereNotNull('winner_user_id') // Exclude games without a winner
-            ->groupBy('winner_user_id') // Group by the winner ID
-            ->orderBy('wins', 'desc') // Order by the number of wins, descending
-            ->take(5) // Limit to the top 5 players
-            ->get();
-            
-        $losses = DB::table('games')
-            ->select(DB::raw('COUNT(*) as losses'))
+        if ($filter != 'wins' && $filter != 'losses') 
+        {
+            return response()->json(['error' => 'Invalid filter'], 400);
+        }
+
+        $games = Game::query();
+        $bestScores = $games->selectRaw('board_id, COUNT(*) as wins')
             ->join('multiplayer_games_played', 'games.id', '=', 'multiplayer_games_played.game_id')
-            ->where('multiplayer_games_played.user_id', $user->id)
-            ->where('winner_user_id', '!=', $user->id) // Fix here
-            ->where('board_id', $queryParameters['board_id'])
-            ->whereNotNull('winner_user_id') // Exclude games without a winner
+            ->where('multiplayer_games_played.user_id', $request->user()->id)
+            ->where('games.type', 'M')
+            ->where('games.status', 'E')
+            ->where('player_won', $filter == 'wins' ? 1 : 0) //if it's wins, player_won = 1, if it's losses, player_won = 0
+            ->groupBy('board_id')
+            ->with('board')
+            ->orderBy('wins', 'desc')
             ->get();
 
-        // Map the users onto the top players
-        $topPlayers = $topPlayers->map(function ($player) use ($losses) {
-            // Check if the user exists in the collection and add the nickname field
-            
-            $player->losses = $losses[0]->losses; // Default value if user not found
-            
-            
-            return $player;
-        });
+
+        $result = $bestScores->map(function($game) {
+            return [
+                'board' => $game->board->board_rows . 'x' . $game->board->board_cols,
+                'games' => $game->wins, //it can mean losses too
+            ];
+        })->values();
+
         
-        return $topPlayers;
+        return $result;
     }
 }
