@@ -27,11 +27,11 @@ class GameController extends Controller
     {
         if($request->user()->type == 'A')
         {
-            return GameResource::collection(Game::where('type', 'S')->paginate(10));
+            return GameResource::collection(Game::where('type', 'S')->orderBy('created_at', 'desc')->paginate(10));
         }
         else
         {
-            return GameResource::collection(Game::where('type', 'S')->where('created_user_id', $request->user()->id)->paginate(10));
+            return GameResource::collection(Game::where('type', 'S')->where('created_user_id', $request->user()->id)->orderBy('created_at', 'desc')->paginate(10));
         }
     }
 
@@ -40,12 +40,12 @@ class GameController extends Controller
     {
         if($request->user()->type == 'A')
         {
-            return GameResource::collection(Game::where('type', 'M')->paginate(10));
+            return GameResource::collection(Game::where('type', 'M')->orderBy('created_at', 'desc')->paginate(10));
         }
         else
         {
             $ids = MultiplayerGamesPlayed::where('user_id', $request->user()->id)->pluck('game_id')->toArray();
-            return GameResource::collection(Game::where('type', 'M')->whereIntegerInRaw('id', $ids)->paginate(10));
+            return GameResource::collection(Game::where('type', 'M')->whereIntegerInRaw('id', $ids)->orderBy('created_at', 'desc')->paginate(10));
         }
     }
 
