@@ -28,6 +28,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //scoreboards
     Route::get('/scoreboards/singleplayer/personal/{filter}', [ScoreboardController::class, 'scoreboardBySingleplayerGamesByUsers']);
     Route::get('/scoreboards/multiplayer/personal/{filter}', [ScoreboardController::class, 'scoreboardByMutliplayerGamesByUsers']);
+
+    //stats
+    Route::get('/stats/my', [StatsController::class, 'myStats']); //my stats
+    Route::get('/stats/admin', [StatsController::class, 'adminStats']); //admin stats
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
