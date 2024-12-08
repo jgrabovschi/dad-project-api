@@ -168,12 +168,7 @@ class GameController extends Controller
 
                 $game->status = 'E';
                 $game->ended_at = now();
-                
-                $start = Carbon::parse($game->created_at);
-                $end = Carbon::parse($game->ended_at);
-                
-                $secondsPassed = $start->floatDiffInSeconds($end);
-                $game->total_time = number_format($secondsPassed, 2);
+                $game->total_time = $validated['total_time'];
 
                 $game->winner_user_id = $validated['winner_user_id'];
                 $game->save();
@@ -206,12 +201,8 @@ class GameController extends Controller
             //fazer singleplayer coisa de update
             $game->status = $validated['status'];
             $game->ended_at = now();
-            
-            $start = Carbon::parse($game->created_at);
-            $end = Carbon::parse($game->ended_at);
-            
-            $secondsPassed = $start->floatDiffInSeconds($end);
-            $game->total_time = number_format($secondsPassed, 2);
+            $game->total_time = $validated['total_time'];
+
 
             $game->save();
         }
