@@ -27,6 +27,7 @@ class UpdateGameRequest extends FormRequest
             'pairs_discovered' => 'sometimes|integer',
             //o status nao sei se vai ser preciso por causa do I
             'status' => 'required|string|in:E,I',
+            'total_time' => 'required|numeric|min:0'
         ];
     }
 }
