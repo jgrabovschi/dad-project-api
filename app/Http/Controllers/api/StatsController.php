@@ -40,7 +40,6 @@ class StatsController extends Controller
         $ids = MultiplayerGamesPlayed::where('user_id', $request->user()->id)->pluck('game_id')->toArray();
 
         $stats = [
-            'games_played' => Game::where('status', 'E')->where('created_user_id', $request->user()->id)->count(),
             'singleplayer_games_played' => Game::where('type', 'S')->where('status', 'E')->where('created_user_id', $request->user()->id)->count(),
             'multiplayer_games_played' => count($ids),
             'transactions' => Transaction::where('user_id', $request->user()->id)->count(),
@@ -69,16 +68,29 @@ class StatsController extends Controller
 
     public function adminStats(Request $request)
     {
+        // query the user that spent the highest sum money on the platform on all the purchases
+        $userSpentMost = DB::table('transactions')
+                        ->selectRaw('user_id, SUM(euros) as total_euros_spent')
+                        ->where('type', 'P') // Purchases
+                        ->groupBy('user_id')
+                        ->orderBy('total_euros_spent', 'DESC')
+                        ->first();
+        
         $stats = [
             'total_revenue' => Transaction::where('type', 'P')->sum('euros'),
-            'user_most_money_spent' => User::where('id', Transaction::where('type', 'P')->orderBy('euros', 'desc')->first()->user_id)->first(),
+            'user_most_money_spent' => [
+                'user' => User::where('id', $userSpentMost->user_id)->first(),
+                'total_euros_spent' => $userSpentMost->total_euros_spent
+            ],
             'revenue_per_month' => DB::table('transactions')
-                                ->selectRaw("YEAR(created_at) as year, MONTH(created_at) as month, SUM(euros) as total_revenue")
+                                ->selectRaw("YEAR(transaction_datetime) as year, MONTH(transaction_datetime) as month, SUM(euros) as total_revenue")
                                 ->where('type', 'P') // Purchases
-                                ->groupByRaw("YEAR(created_at), MONTH(created_at)") // Group by year and month
-                                ->orderByRaw("YEAR(created_at) ASC, MONTH(created_at) ASC")
-                                ->get()
+                                ->groupByRaw("YEAR(transaction_datetime), MONTH(transaction_datetime)") // Group by year and month
+                                ->orderByRaw("YEAR(transaction_datetime) ASC, MONTH(transaction_datetime) ASC")
+                                ->get(),
+            'total_blocks' => User::where('blocked', 1)->count(), 
         ];
+        
         return response()->json($stats);
     }
 }
