@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //stats
     Route::get('/stats/my', [StatsController::class, 'myStats']); //my stats
-    Route::get('/stats/admin', [StatsController::class, 'adminStats']); //admin stats
+    Route::get('/stats/admin', [StatsController::class, 'adminStats']); //only for admin stats
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 

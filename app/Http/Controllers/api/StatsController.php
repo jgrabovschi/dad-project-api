@@ -42,7 +42,7 @@ class StatsController extends Controller
         $stats = [
             'games_played' => Game::where('status', 'E')->where('created_user_id', $request->user()->id)->count(),
             'singleplayer_games_played' => Game::where('type', 'S')->where('status', 'E')->where('created_user_id', $request->user()->id)->count(),
-            'multiplayer_games_played' => Game::where('type', 'M')->where('status', 'E')->where('created_user_id', $request->user()->id)->count(),
+            'multiplayer_games_played' => count($ids),
             'transactions' => Transaction::where('user_id', $request->user()->id)->count(),
             'brain_coins_balance' => $request->user()->brain_coins_balance,
             'total_euro_spent' => Transaction::where('user_id', $request->user()->id)->where('type', 'P')->sum('euros'),
@@ -64,6 +64,21 @@ class StatsController extends Controller
                                 ->get(),
         ];
 
+        return response()->json($stats);
+    }
+
+    public function adminStats(Request $request)
+    {
+        $stats = [
+            'total_revenue' => Transaction::where('type', 'P')->sum('euros'),
+            'user_most_money_spent' => User::where('id', Transaction::where('type', 'P')->orderBy('euros', 'desc')->first()->user_id)->first(),
+            'revenue_per_month' => DB::table('transactions')
+                                ->selectRaw("YEAR(created_at) as year, MONTH(created_at) as month, SUM(euros) as total_revenue")
+                                ->where('type', 'P') // Purchases
+                                ->groupByRaw("YEAR(created_at), MONTH(created_at)") // Group by year and month
+                                ->orderByRaw("YEAR(created_at) ASC, MONTH(created_at) ASC")
+                                ->get()
+        ];
         return response()->json($stats);
     }
 }
