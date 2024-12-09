@@ -17,7 +17,7 @@ class PurchaseResource extends JsonResource
         return [
             'id' => $this->id,
             'transaction_datetime' => $this->transaction_datetime,
-            'user_id' => $this->user_id,
+            'user' => $this->user?->nickname,
             'type' => 'Purchase',
             'euros' => $this->euros,
             'brain_coins' => $this->brain_coins,

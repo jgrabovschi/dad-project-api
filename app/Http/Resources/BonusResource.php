@@ -17,8 +17,8 @@ class BonusResource extends JsonResource
         return [
             'id' => $this->id,
             'transaction_datetime' => $this->transaction_datetime,
-            'user_id' => $this->user_id,
-            'type' => 'Bonus',,
+            'user' => $this->user?->nickname,
+            'type' => 'Bonus',
             'brain_coins' => $this->brain_coins
         ];
     }

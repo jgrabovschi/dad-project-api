@@ -19,8 +19,7 @@ class InternalTransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'transaction_datetime' => $this->transaction_datetime,
-            'user_id' => $this->user_id,
-            'game_id' => $this->game_id,
+            'user' => $this->user?->nickname,
             'type' => 'Internal',
             'brain_coins' => $this->brain_coins
         ];
