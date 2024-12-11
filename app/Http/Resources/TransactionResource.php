@@ -27,6 +27,7 @@ class TransactionResource extends JsonResource
             'transaction_datetime' => $this->transaction_datetime,
             'user' => $this->user?->nickname,
             'type' => $type,
+            'game' => $this->game != null ? (($this->game->type == 'S' ? "Singleplayer" : "Multiplayer") . " " . $this->game->board->board_cols . "X" . $this->game->board->board_rows . " - Game " . $this->game->id) : null,
             'euros' => $this->euros,
             'brain_coins' => $this->brain_coins,
             'payment_type' => $this->payment_type,
