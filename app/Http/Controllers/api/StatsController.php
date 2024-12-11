@@ -89,6 +89,12 @@ class StatsController extends Controller
                                 ->orderByRaw("YEAR(transaction_datetime) ASC, MONTH(transaction_datetime) ASC")
                                 ->get(),
             'total_blocks' => User::where('blocked', 1)->count(), 
+            'transactions_per_month' => DB::table('transactions')
+                                ->selectRaw("YEAR(transaction_datetime) as year, MONTH(transaction_datetime) as month, COUNT(*) as total_transactions")
+                                ->groupByRaw("YEAR(transaction_datetime), MONTH(transaction_datetime)") // Group by year and month
+                                ->orderByRaw("YEAR(transaction_datetime) ASC, MONTH(transaction_datetime) ASC")
+                                ->get(),
+            'average_euros_per_transaction' => Transaction::where('type', 'P')->avg('euros'),
         ];
         
         return response()->json($stats);
