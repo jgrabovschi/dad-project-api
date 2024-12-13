@@ -147,9 +147,9 @@ class GameController extends Controller
 
             $multiplayerGame_player2 = new MultiplayerGamesPlayed();
 
-            $multiplayerGame->user_id = $user_player_2->id;
-            $multiplayerGame->game_id = $game->id;
-            $multiplayerGame->save();
+            $multiplayerGame_player2->user_id = $user_player_2->id;
+            $multiplayerGame_player2->game_id = $game->id;
+            $multiplayerGame_player2->save();
         }
         #$task = Task::create($request->validated());
         return new GameResource($game);
