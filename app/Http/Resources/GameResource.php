@@ -39,6 +39,7 @@ class GameResource extends JsonResource
                         return [
                             'user_nickname' => $multiplayer->user->nickname,
                             'pairs_discovered' => $multiplayer->pairs_discovered,
+                            'user_id' => $multiplayer->user->id,
                         ];
                     }
                     return null;
