@@ -101,35 +101,55 @@ class GameController extends Controller
             }
         }else{
             $user = User::findOrFail($validated['created_user_id']);
-                if($user->brain_coins_balance < 5){
-                    return response()->json([
-                        'message' => 'User needs to have 5 brain coins to play a Multi player game'
-                    ], 400);
-                }
+            if($user->brain_coins_balance < 5){
+                return response()->json([
+                    'message' => 'User needs to have 5 brain coins to play a Multi player game'
+                ], 400);
+            }
 
-                $game = new Game();
-                $game->fill($validated);
-                $game->status = 'PE';
-                $game->began_at = now();
-                $game->ended_at = null;
-                $user->brain_coins_balance -= 5;
+            $user_player_2 = User::findOrFail($validated['second_player_user_id']);
 
-                if($game->save() && $user->save()){
-                    
-                    $transaction = new Transaction();
-                    $transaction->user_id = $user->id;
-                    $transaction->game_id = $game->id;
-                    $transaction->brain_coins = -5;
-                    $transaction->type = 'I';
-                    $transaction->transaction_datetime = now();
-                    $transaction->save();            
-                }
+            $game = new Game();
+            $game->fill($validated);
+            $game->status = 'PL';
+            $game->began_at = now();
+            $game->ended_at = null;
+            $user->brain_coins_balance -= 5;
+            $user_player_2->brain_coins_balance -= 5;
 
-                $multiplayerGame = new MultiplayerGamesPlayed();
+            if($game->save() && $user->save()){
+                
+                $transaction = new Transaction();
+                $transaction->user_id = $user->id;
+                $transaction->game_id = $game->id;
+                $transaction->brain_coins = -5;
+                $transaction->type = 'I';
+                $transaction->transaction_datetime = now();
+                $transaction->save();    
+                
+            }
 
-                $multiplayerGame->user_id = $user->id;
-                $multiplayerGame->game_id = $game->id;
-                $multiplayerGame->save();
+            if($user_player_2->save()){
+                $transaction_player2 = new Transaction();
+                $transaction_player2->user_id = $user_player_2->id;
+                $transaction_player2->game_id = $game->id;
+                $transaction_player2->brain_coins = -5;
+                $transaction_player2->type = 'I';
+                $transaction_player2->transaction_datetime = now();
+                $transaction_player2->save();  
+            }
+
+            $multiplayerGame = new MultiplayerGamesPlayed();
+
+            $multiplayerGame->user_id = $user->id;
+            $multiplayerGame->game_id = $game->id;
+            $multiplayerGame->save();
+
+            $multiplayerGame_player2 = new MultiplayerGamesPlayed();
+
+            $multiplayerGame->user_id = $user_player_2->id;
+            $multiplayerGame->game_id = $game->id;
+            $multiplayerGame->save();
         }
         #$task = Task::create($request->validated());
         return new GameResource($game);
