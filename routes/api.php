@@ -38,6 +38,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->can('viewAny', User::class); //show all users
 
 
+    //game
+    // Route::post('/games', [GameController::class, 'store'])->can('create', Game::class);
+    // Route::put('/games/{game}', [GameController::class, 'update'])->can('update', 'game');
+    // Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti'])->can('updateMulti', 'game');
+    Route::post('/games', [GameController::class, 'store']);
+    Route::put('/games/{game}', [GameController::class, 'update']);
+    Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
+
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -81,10 +90,10 @@ Route::get('/transactions/type/{type}', [TransactionController::class, 'showTran
 
 Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
-Route::post('/games', [GameController::class, 'store']);
-Route::put('/games/{game}', [GameController::class, 'update']);
-Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
-Route::put('/games/{game}/join', [GameController::class, 'join']);
+//Route::post('/games', [GameController::class, 'store']);
+//Route::put('/games/{game}', [GameController::class, 'update']);
+//Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
+//Route::put('/games/{game}/join', [GameController::class, 'join']);
 #Route::post('/users', [UserController::class, 'store']);
 #Route::put('/users/{id}', [UserController::class, 'update']);
 #Route::post('users/{id}/block', [UserController::class, 'block']);
