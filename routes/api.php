@@ -83,6 +83,7 @@ Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
 Route::post('/games', [GameController::class, 'store']);
 Route::put('/games/{game}', [GameController::class, 'update']);
+Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
 Route::put('/games/{game}/join', [GameController::class, 'join']);
 #Route::post('/users', [UserController::class, 'store']);
 #Route::put('/users/{id}', [UserController::class, 'update']);
