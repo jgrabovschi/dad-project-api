@@ -9,6 +9,7 @@ use App\Http\Controllers\api\GameController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\ScoreboardController;
 use App\Http\Controllers\api\StatsController;
+use App\Models\User;
 
 //************
 // Auth API
@@ -32,6 +33,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //stats
     Route::get('/stats/my', [StatsController::class, 'myStats']); //my stats
     Route::get('/stats/admin', [StatsController::class, 'adminStats']); //only for admin stats
+    
+    //Admin
+    Route::get('/users', [UserController::class, 'index'])->can('viewAny', User::class); //show all users
+
+
+    //game
+    // Route::post('/games', [GameController::class, 'store'])->can('create', Game::class);
+    // Route::put('/games/{game}', [GameController::class, 'update'])->can('update', 'game');
+    // Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti'])->can('updateMulti', 'game');
+    Route::post('/games', [GameController::class, 'store']);
+    Route::put('/games/{game}', [GameController::class, 'update']);
+    Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
+
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -49,7 +64,7 @@ Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
 // Users API
 //************
 
-Route::get('/users', [UserController::class, 'index']);
+
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
@@ -75,9 +90,10 @@ Route::get('/transactions/type/{type}', [TransactionController::class, 'showTran
 
 Route::get('/games/{game}', [GameController::class, 'show']);
 Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
-Route::post('/games', [GameController::class, 'store']);
-Route::put('/games/{game}', [GameController::class, 'update']);
-Route::put('/games/{game}/join', [GameController::class, 'join']);
+//Route::post('/games', [GameController::class, 'store']);
+//Route::put('/games/{game}', [GameController::class, 'update']);
+//Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
+//Route::put('/games/{game}/join', [GameController::class, 'join']);
 #Route::post('/users', [UserController::class, 'store']);
 #Route::put('/users/{id}', [UserController::class, 'update']);
 #Route::post('users/{id}/block', [UserController::class, 'block']);

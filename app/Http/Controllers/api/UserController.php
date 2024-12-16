@@ -30,6 +30,18 @@ class UserController extends Controller
     {
         $query = User::query();
 
+        /*
+        if ($request->has('search') && $request->has('userType')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', $search . '%');
+        }*/
+        
+        if ($request->has('type')) {
+            $userType = $request->input('type');
+            $query->where('type', $userType);
+        }
+
+        
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('name', 'like', $search . '%');

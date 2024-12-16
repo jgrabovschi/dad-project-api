@@ -26,6 +26,7 @@ class StoreGameRequest extends FormRequest
             'created_user_id' => 'required|integer|exists:users,id',
             'type' => 'required|string|in:S,M',
             'board_id' => 'required|integer|exists:users,id',
+            'second_player_user_id' => 'sometimes|integer|exists:users,id'
         ];
     }
 }

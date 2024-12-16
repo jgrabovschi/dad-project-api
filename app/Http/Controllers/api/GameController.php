@@ -15,6 +15,7 @@ use App\Http\Requests\GetMultiplayerGamesRequest;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
 use App\Http\Requests\JoinGameRequest;
+use App\Http\Requests\UpdateGameMultiplayerRequest;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -101,35 +102,55 @@ class GameController extends Controller
             }
         }else{
             $user = User::findOrFail($validated['created_user_id']);
-                if($user->brain_coins_balance < 5){
-                    return response()->json([
-                        'message' => 'User needs to have 5 brain coins to play a Multi player game'
-                    ], 400);
-                }
+            if($user->brain_coins_balance < 5){
+                return response()->json([
+                    'message' => 'User needs to have 5 brain coins to play a Multi player game'
+                ], 400);
+            }
 
-                $game = new Game();
-                $game->fill($validated);
-                $game->status = 'PE';
-                $game->began_at = now();
-                $game->ended_at = null;
-                $user->brain_coins_balance -= 5;
+            $user_player_2 = User::findOrFail($validated['second_player_user_id']);
 
-                if($game->save() && $user->save()){
-                    
-                    $transaction = new Transaction();
-                    $transaction->user_id = $user->id;
-                    $transaction->game_id = $game->id;
-                    $transaction->brain_coins = -5;
-                    $transaction->type = 'I';
-                    $transaction->transaction_datetime = now();
-                    $transaction->save();            
-                }
+            $game = new Game();
+            $game->fill($validated);
+            $game->status = 'PL';
+            $game->began_at = now();
+            $game->ended_at = null;
+            $user->brain_coins_balance -= 5;
+            $user_player_2->brain_coins_balance -= 5;
 
-                $multiplayerGame = new MultiplayerGamesPlayed();
+            if($game->save() && $user->save()){
+                
+                $transaction = new Transaction();
+                $transaction->user_id = $user->id;
+                $transaction->game_id = $game->id;
+                $transaction->brain_coins = -5;
+                $transaction->type = 'I';
+                $transaction->transaction_datetime = now();
+                $transaction->save();    
+                
+            }
 
-                $multiplayerGame->user_id = $user->id;
-                $multiplayerGame->game_id = $game->id;
-                $multiplayerGame->save();
+            if($user_player_2->save()){
+                $transaction_player2 = new Transaction();
+                $transaction_player2->user_id = $user_player_2->id;
+                $transaction_player2->game_id = $game->id;
+                $transaction_player2->brain_coins = -5;
+                $transaction_player2->type = 'I';
+                $transaction_player2->transaction_datetime = now();
+                $transaction_player2->save();  
+            }
+
+            $multiplayerGame = new MultiplayerGamesPlayed();
+
+            $multiplayerGame->user_id = $user->id;
+            $multiplayerGame->game_id = $game->id;
+            $multiplayerGame->save();
+
+            $multiplayerGame_player2 = new MultiplayerGamesPlayed();
+
+            $multiplayerGame_player2->user_id = $user_player_2->id;
+            $multiplayerGame_player2->game_id = $game->id;
+            $multiplayerGame_player2->save();
         }
         #$task = Task::create($request->validated());
         return new GameResource($game);
@@ -153,60 +174,118 @@ class GameController extends Controller
             }
         }*/
         
+        //fazer singleplayer coisa de update
+        $game->status = $validated['status'];
+        $game->ended_at = now();
+        $game->total_time = $validated['total_time'];
+        $game->total_turns_winner = $validated['turns'];
+
+
+        $game->save();
         
-        
-        if($game->type == 'M'){
-            //tou a pensar dividir isto este dois endpoints um para quem ganhou e um para quem perdeu
-            if($game->winner_user_id != null){
+
+        return new GameResource($game);
+    }
+
+    public function updateMulti(UpdateGameMultiplayerRequest $request, Game $game)
+    {
+        //pode ser preciso melhor proteções
+        if($game->status == 'I'){
+            return response()->json([
+                'message' => 'Can´t update game has already ended'
+            ], 400);
+        }
+        $validated = $request->validated();
+
+        /*if($game->created_user_id != $validated['winner_user_id']){
+            if($game->status == 'E' || $game->status == 'I'){
                 return response()->json([
                     'message' => 'Can´t update game has already ended'
                 ], 400);
             }
-            $multiplayerGame = MultiplayerGamesPlayed::where('game_id', $game->id)
-                ->where('user_id', $validated['user_id'])->get()[0];
-            if($multiplayerGame->user_id == $validated['winner_user_id']){
-
-                $game->status = 'E';
-                $game->ended_at = now();
-                $game->total_time = $validated['total_time'];
-
-                $game->winner_user_id = $validated['winner_user_id'];
-                $game->save();
-
-                //dar as coins ao user que ganhou
-                $user = User::findOrFail($validated['winner_user_id']);
-                $user->brain_coins_balance += 8;
-                $user->save();
-
-                $transaction = new Transaction();
-                $transaction->user_id = $user->id;
-                $transaction->game_id = $game->id;
-                $transaction->brain_coins = 8;
-                $transaction->type = 'I';
-                $transaction->transaction_datetime = now();
-                $transaction->save(); 
-                $multiplayerGame->player_won = 1;
-            }else{
-                if($multiplayerGame->player_won != null){
-                    return response()->json([
-                        'message' => 'Can´t update game has already ended'
-                    ], 400);
-                }
-                $multiplayerGame->player_won = 0;
-            }
-
-            $multiplayerGame->pairs_discovered = $validated['pairs_discovered'];
-            $multiplayerGame->save();
-        }else{
-            //fazer singleplayer coisa de update
-            $game->status = $validated['status'];
-            $game->ended_at = now();
-            $game->total_time = $validated['total_time'];
-
-
-            $game->save();
+        }*/
+        
+        if($game->type != 'M'){
+            return response()->json([
+                'message' => 'The game that you want to update must be multiplayer'
+            ], 400);
+        }
+        
+        if($game->winner_user_id != null){
+            return response()->json([
+                'message' => 'Can´t update game has already ended'
+            ], 400);
         }
 
+        $multiplayerGame = MultiplayerGamesPlayed::where('game_id', $game->id)
+            ->where('user_id', $validated['creator_user_id'])->get()[0];
+        
+        $multiplayerGame_player2 = MultiplayerGamesPlayed::where('game_id', $game->id)
+            ->where('user_id', $validated['player2_user_id'])->get()[0];
+
+        //guardar jogo principal
+        $game->status = $validated['status'];
+        $game->ended_at = now();
+        $game->total_turns_winner = $validated['turns'];
+        if($validated['status'] == 'E'){
+            $game->total_time = $validated['total_time'];
+        }else{
+            $game->total_time = null;
+        }
+        
+        $game->winner_user_id = $validated['winner_user_id'];
+        $game->save();
+        
+        if($multiplayerGame->user_id == $validated['winner_user_id']){
+            //actualizar o multi do que ganhou
+            //dar as coins ao user que ganhou
+            $user = User::findOrFail($validated['winner_user_id']);
+            $user->brain_coins_balance += 8;
+            $user->save();
+
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->game_id = $game->id;
+            $transaction->brain_coins = 8;
+            $transaction->type = 'I';
+            $transaction->transaction_datetime = now();
+            $transaction->save(); 
+            $multiplayerGame->player_won = 1;
+
+            $multiplayerGame->pairs_discovered = $validated['player1_pairs_discovered'];
+            $multiplayerGame->save();
+
+            $multiplayerGame_player2->player_won = 0;
+            $multiplayerGame_player2->pairs_discovered = $validated['player2_pairs_discovered'];
+            $multiplayerGame_player2->save();
+
+            //actualizar do que perdeu
+        }else{
+            //actualizar o multi do que ganhou
+            //dar as coins ao user que ganhou
+            $user = User::findOrFail($validated['player2_user_id']);
+            $user->brain_coins_balance += 8;
+            $user->save();
+
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->game_id = $game->id;
+            $transaction->brain_coins = 8;
+            $transaction->type = 'I';
+            $transaction->transaction_datetime = now();
+            $transaction->save(); 
+            $multiplayerGame_player2->player_won = 1;
+
+            $multiplayerGame_player2->pairs_discovered = $validated['player2_pairs_discovered'];
+            $multiplayerGame_player2->save();
+
+            $multiplayerGame->player_won = 0;
+            $multiplayerGame->pairs_discovered = $validated['player1_pairs_discovered'];
+            $multiplayerGame->save();
+            
+        }
+
+        
         return new GameResource($game);
     }
 
