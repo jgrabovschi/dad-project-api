@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //stats
     Route::get('/stats/my', [StatsController::class, 'myStats']); //my stats
-    Route::get('/stats/admin', [StatsController::class, 'adminStats']); //only for admin stats
+    Route::get('/stats/admin', [StatsController::class, 'adminStats'])->can('admin') ; //only for admin stats
     
     //Admin
     Route::get('/users', [UserController::class, 'index'])->can('viewAny', User::class); //show all users
