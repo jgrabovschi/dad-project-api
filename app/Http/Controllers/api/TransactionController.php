@@ -11,6 +11,8 @@ use App\Http\Resources\InternalTransactionResource;
 use App\Http\Resources\BonusResource;
 use App\Http\Resources\PurchaseResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth as Auth_Sanctum;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\DB;
 
 
@@ -46,9 +48,17 @@ class TransactionController extends Controller
         }
     }
     
-    public function showUserTransactions(string $nickname)
+    public function showUserTransactions( string $nickname)
     {
+        $user = Auth_Sanctum::user();
+
+        if($user->nickname != $nickname && $user->type != 'A'){
+            return response()->json(['message' => "The Logged Account Don't Have Permission to Access This User Transactions "], 403);
+        }
+
         $user = User::where('nickname', $nickname)->first();
+
+
 
         if($user == null){
             return response()->json(['message' => 'Invalid nickname'], 404);
@@ -79,6 +89,12 @@ class TransactionController extends Controller
 
     public function showTransactionsByTypeAndUser(string $nickname, string $type)
     {
+        $user = Auth_Sanctum::user();
+        
+        if($user->nickname != $nickname && $user->type != 'A'){
+            return response()->json(['message' => "The Logged Account Doesn't Have Permission to Access This User Transactions "], 403);
+        }
+
         $user = User::where('nickname', $nickname)->first();
         if($user == null){
             return response()->json(['message' => 'Invalid nickname'], 404);

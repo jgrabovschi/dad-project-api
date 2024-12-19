@@ -9,7 +9,9 @@ use App\Http\Controllers\api\GameController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\ScoreboardController;
 use App\Http\Controllers\api\StatsController;
+use App\Models\Transaction;
 use App\Models\User;
+
 
 //************
 // Auth API
@@ -47,6 +49,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
 
 
+//************
+// Transactions API
+//************
+
+Route::get('/transactions', [TransactionController::class, 'index'])->can('admin');
+Route::post('/transactions', [TransactionController::class, 'store']);
+Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
+Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
+Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -72,16 +85,7 @@ Route::post('users/{user}/block', [UserController::class, 'block']);
 Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 
-//************
-// Transactions API
-//************
 
-
-Route::get('/transactions', [TransactionController::class, 'index']);
-Route::post('/transactions', [TransactionController::class, 'store']);
-Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
-Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
-Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
 
 
 //************
