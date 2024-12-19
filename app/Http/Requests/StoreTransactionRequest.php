@@ -22,15 +22,12 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Required fields
             'user_id' => 'required|integer|exists:users,id',
             'type' => 'required|string|in:B,P,I',
             'brain_coins' => 'required|integer',
-            
-            // Conditionally required fields
             'game_id' => 'required_if:type,I|integer|exists:games,id',
             'euros' => 'required_if:type,P|nullable|numeric|min:0',
-            'payment_type' => 'required_if:type,P|nullable|string|in:MBWAY,IBAN,MB,VISA',
+            'payment_type' => 'required_if:type,P|nullable|string|in:MBWAY,IBAN,MB,VISA,PAYPAL',
             'payment_reference' => 'required_if:type,P|nullable|string|max:255',
         ];
     }

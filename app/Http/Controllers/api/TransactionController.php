@@ -11,6 +11,7 @@ use App\Http\Resources\InternalTransactionResource;
 use App\Http\Resources\BonusResource;
 use App\Http\Resources\PurchaseResource;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 
 class TransactionController extends Controller
@@ -21,16 +22,30 @@ class TransactionController extends Controller
 
     }
 
+
     public function store(StoreTransactionRequest $request)
     {
-        $transaction = new Transaction();
-        $transaction->fill($request->validated());
-        $transaction->transaction_datetime = now();
-        $transaction->save();
-
-        return new TransactionResource($transaction);
+        DB::beginTransaction();
+    
+        try {
+            $transaction = new Transaction();
+            $transaction->fill($request->validated());
+            $transaction->transaction_datetime = now();
+            $transaction->save();
+            if ($request->type === 'P') {
+                $user = $transaction->user;
+                $user->brain_coins_balance += $transaction->brain_coins;
+                $user->save();
+            }
+    
+            DB::commit();
+            return new TransactionResource($transaction);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Transaction failed: ' . $e->getMessage()], 500);
+        }
     }
-
+    
     public function showUserTransactions(string $nickname)
     {
         $user = User::where('nickname', $nickname)->first();
