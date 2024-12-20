@@ -51,17 +51,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
 
 
-//************
-// Transactions API
-//************
+    //************
+    // Transactions API
+    //************
 
-Route::get('/transactions', [TransactionController::class, 'index'])->can('admin');
-Route::post('/transactions', [TransactionController::class, 'store']);
-Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
-Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
-Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+    Route::get('/transactions', [TransactionController::class, 'index'])->can('admin');
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
+    Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
+    Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+    
 
-
+    Route::post('/users/admin', [UserController::class, 'store'])->can('admin');
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
