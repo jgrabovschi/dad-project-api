@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Game;
+use App\Models\MultiplayerGamesPlayed;
 use App\Models\User;
 
 class GamePolicy
@@ -25,7 +26,15 @@ class GamePolicy
     } 
     public function view(User $user, Game $game): bool 
     { 
-        return true; 
+        if($game->created_user_id == $user->id){
+            return true;
+        }
+        $multiplayerGame = MultiplayerGamesPlayed::where('game_id', $game->id)
+            ->where('user_id', $user->id)->get()[0];
+        if($multiplayerGame){
+            return true;
+        }
+        return false; 
     } 
  
     public function create(User $user): bool 
@@ -36,6 +45,11 @@ class GamePolicy
     public function update(User $user, Game $game): bool 
     { 
         if($game->created_user_id == $user->id){
+            return true;
+        }
+        $multiplayerGame = MultiplayerGamesPlayed::where('game_id', $game->id)
+            ->where('user_id', $user->id)->get()[0];
+        if($multiplayerGame){
             return true;
         }
         
@@ -52,8 +66,5 @@ class GamePolicy
         }
         return false; 
     } 
-
-    
- 
     
 }
