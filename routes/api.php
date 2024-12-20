@@ -61,6 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
     Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
     
+    //users
     Route::post('users/{user}/block', [UserController::class, 'block'])->can('admin');
     Route::post('/users/admin', [UserController::class, 'store'])->can('admin');
     Route::put('/users/{user}', [UserController::class, 'update'])->can('update','user');
