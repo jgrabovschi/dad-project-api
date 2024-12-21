@@ -39,6 +39,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     //Admin
     Route::get('/users', [UserController::class, 'index'])->can('viewAny', User::class); //show all users
+    
+    Route::post('/boards', [BoardController::class, 'store'])->can('admin');
+    Route::delete('/boards/{board}', [BoardController::class, 'destroy'])->can('admin');
 
 
     //game
@@ -59,7 +62,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
     Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
-    Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+    Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType'])->can('admin');
     
     //users
     Route::post('users/{user}/block', [UserController::class, 'block'])->can('admin');
@@ -78,9 +81,6 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 //************
 
 Route::get('/boards', [BoardController::class, 'index']);
-Route::post('/boards', [BoardController::class, 'store']);
-Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
-
 
 //************
 // Users API
