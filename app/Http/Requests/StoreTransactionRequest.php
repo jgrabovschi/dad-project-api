@@ -25,10 +25,11 @@ class StoreTransactionRequest extends FormRequest
             'user_id' => 'required|integer|exists:users,id',
             'type' => 'required|string|in:B,P,I',
             'brain_coins' => 'required|integer',
-            'game_id' => 'required_if:type,I|integer|exists:games,id',
+            'game_id' => 'integer|exists:games,id',
             'euros' => 'required_if:type,P|nullable|numeric|min:0',
             'payment_type' => 'required_if:type,P|nullable|string|in:MBWAY,IBAN,MB,VISA,PAYPAL',
             'payment_reference' => 'required_if:type,P|nullable|string|max:255',
+            'custom' => 'nullable|array'
         ];
     }
 }

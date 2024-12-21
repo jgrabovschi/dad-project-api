@@ -83,9 +83,7 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
 Route::post('users/{user}/block', [UserController::class, 'block']);
 Route::delete('/users/{user}', [UserController::class, 'destroy']);
-
-
-
+Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
 
 
 //************

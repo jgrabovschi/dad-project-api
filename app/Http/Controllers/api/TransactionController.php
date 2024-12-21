@@ -27,14 +27,20 @@ class TransactionController extends Controller
 
     public function store(StoreTransactionRequest $request)
     {
+        $user = Auth_Sanctum::user();
         DB::beginTransaction();
+
+        if ($user->brain_coins_balance + $request->brain_coins < 0){
+            DB::rollBack();
+            return response()->json(['error' => 'Transaction failed: You do not have enough funds'], 500);
+        } 
     
         try {
             $transaction = new Transaction();
             $transaction->fill($request->validated());
             $transaction->transaction_datetime = now();
             $transaction->save();
-            if ($request->type === 'P') {
+            if ($request->type === 'P' || ($request->type == 'I' && $request->game_id == null)) {
                 $user = $transaction->user;
                 $user->brain_coins_balance += $transaction->brain_coins;
                 $user->save();

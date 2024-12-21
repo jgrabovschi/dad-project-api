@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Transaction;
 use App\Http\Controllers\api\TransactionController;
+use App\Http\Requests\UpdateCardRequest;
 use App\Http\Requests\ValidatePasswordRequest;
 
 
@@ -248,6 +249,12 @@ class UserController extends Controller
         $user->save(); // Save the user to the database
         $user->updated_at = now();
 
+        return new UserResource($user);
+    }
+
+    public function updateCards(UpdateCardRequest $request, User $user){
+        $user->custom = $request->data;
+        $user->save();
         return new UserResource($user);
     }
 
