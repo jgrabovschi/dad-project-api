@@ -73,6 +73,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
 
 });
+
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 

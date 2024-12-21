@@ -34,6 +34,11 @@ class TransactionController extends Controller
             DB::rollBack();
             return response()->json(['error' => 'Transaction failed: You do not have enough funds'], 500);
         } 
+
+        if($user->type == 'A'){
+            DB::rollBack();
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
     
         try {
             $transaction = new Transaction();

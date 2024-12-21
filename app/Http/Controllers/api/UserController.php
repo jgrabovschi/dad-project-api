@@ -178,7 +178,7 @@ class UserController extends Controller
 
     public function updateCards(UpdateCardRequest $request, User $user){
         $auth_user = Auth_Sanctum::user();
-        if($auth_user->id != $user->id){
+        if($auth_user->id != $user->id || $auth_user->type == 'A'){
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $user->custom = $request->data;
