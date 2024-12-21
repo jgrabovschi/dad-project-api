@@ -50,11 +50,6 @@ class GameController extends Controller
         }
     }
 
-    public function gameByUser(User $user)
-    {
-        return GameResource::collection(Game::where('created_user_id',$user->id)->paginate(10));
-    }
-
     public function show(Game $game)
     {
         return new GameResource($game);
@@ -98,6 +93,10 @@ class GameController extends Controller
                     $transaction->type = 'I';
                     $transaction->transaction_datetime = now();
                     $transaction->save();               
+                }else{
+                    return response()->json([
+                        'message' => 'error at creating the game'
+                    ], 400);
                 }
             }
         }else{

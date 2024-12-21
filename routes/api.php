@@ -11,6 +11,7 @@ use App\Http\Controllers\api\ScoreboardController;
 use App\Http\Controllers\api\StatsController;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Game;
 
 
 //************
@@ -41,25 +42,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     //game
-    // Route::post('/games', [GameController::class, 'store'])->can('create', Game::class);
-    // Route::put('/games/{game}', [GameController::class, 'update'])->can('update', 'game');
-    // Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti'])->can('updateMulti', 'game');
-    Route::post('/games', [GameController::class, 'store']);
-    Route::put('/games/{game}', [GameController::class, 'update']);
-    Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
+    Route::post('/games', [GameController::class, 'store'])->can('create', Game::class);
+    Route::put('/games/{game}', [GameController::class, 'update'])->can('update', 'game');
+    Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti'])->can('updateMulti', 'game');
+    Route::get('/games/{game}', [GameController::class, 'show'])->can('view', 'game');
+    // Route::post('/games', [GameController::class, 'store']);
+    // Route::put('/games/{game}', [GameController::class, 'update']);
+    // Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
 
 
-//************
-// Transactions API
-//************
+    //************
+    // Transactions API
+    //************
 
-Route::get('/transactions', [TransactionController::class, 'index'])->can('admin');
-Route::post('/transactions', [TransactionController::class, 'store']);
-Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
-Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
-Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
-
-
+    Route::get('/transactions', [TransactionController::class, 'index'])->can('admin');
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/transactions/users/{nickname}', [TransactionController::class, 'showUserTransactions']);
+    Route::get('/transactions/users/{nickname}/type/{type}', [TransactionController::class, 'showTransactionsByTypeAndUser']);
+    Route::get('/transactions/type/{type}', [TransactionController::class, 'showTransactionsByType']);
+    
+    //users
+    Route::post('users/{user}/block', [UserController::class, 'block'])->can('admin');
+    Route::post('/users/admin', [UserController::class, 'store'])->can('admin');
+    Route::put('/users/{user}', [UserController::class, 'update'])->can('update','user');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->can('delete', 'user');
+    Route::get('/users/{user}', [UserController::class, 'show'])->can('admin');
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -78,11 +85,10 @@ Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
 //************
 
 
-Route::get('/users/{user}', [UserController::class, 'show']);
-Route::post('/users', [UserController::class, 'store']);
-Route::put('/users/{user}', [UserController::class, 'update']);
-Route::post('users/{user}/block', [UserController::class, 'block']);
-Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+Route::post('/users', [UserController::class, 'store']); //sign up
+
+
 Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
 
 
@@ -90,8 +96,7 @@ Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
 // Games API
 //************
 
-Route::get('/games/{game}', [GameController::class, 'show']);
-Route::get('/games/users/{user}', [GameController::class, 'gameByUser']);
+//Route::get('/games/{game}', [GameController::class, 'show']);
 //Route::post('/games', [GameController::class, 'store']);
 //Route::put('/games/{game}', [GameController::class, 'update']);
 //Route::put('/games/multiplayer/{game}', [GameController::class, 'updateMulti']);
