@@ -26,20 +26,27 @@ class ScoreboardController extends Controller
         }
 
         $games = Game::query();
-        $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MIN(total_turns_winner) as total_turns_winner, MIN(total_time) as total_time')
+
+        
+        if($filter == 'turns')
+        {
+            $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MIN(total_turns_winner) as total_turns_winner')
               ->join('users', 'games.created_user_id', '=', 'users.id')
               ->whereNull('users.deleted_at')
               ->where('games.type', 'S')
               ->where('games.status', 'E')
-              ->groupBy('board_id');
-        
-        if($filter == 'turns')
-        {
-            $games->orderBy('total_turns_winner', 'asc');
+              ->groupBy('board_id')
+              ->orderBy('total_turns_winner', 'asc');
         }
         else
         {
-            $games->orderBy('total_time', 'asc');
+            $games->selectRaw('board_id, ANY_VALUE(users.nickname) as nickname, MIN(total_time) as total_time')
+              ->join('users', 'games.created_user_id', '=', 'users.id')
+              ->whereNull('users.deleted_at')
+              ->where('games.type', 'S')
+              ->where('games.status', 'E')
+              ->groupBy('board_id')
+              ->orderBy('total_time', 'asc');
         }
 
         $bestScores = $games->with(['board', 'creator'])->get();
