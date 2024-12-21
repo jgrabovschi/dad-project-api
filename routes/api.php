@@ -67,6 +67,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->can('update','user');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->can('delete', 'user');
     Route::get('/users/{user}', [UserController::class, 'show'])->can('admin');
+    Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -89,7 +91,6 @@ Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
 Route::post('/users', [UserController::class, 'store']); //sign up
 
 
-Route::put('/users/{user}/card', [UserController::class, 'updateCards']);
 
 
 //************

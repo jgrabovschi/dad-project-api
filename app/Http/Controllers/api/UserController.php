@@ -177,6 +177,10 @@ class UserController extends Controller
     }
 
     public function updateCards(UpdateCardRequest $request, User $user){
+        $auth_user = Auth_Sanctum::user();
+        if($auth_user->id != $user->id){
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $user->custom = $request->data;
         $user->save();
         return new UserResource($user);
